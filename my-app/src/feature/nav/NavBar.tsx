@@ -16,7 +16,6 @@ export const NavBar:React.FC<IProps> = ({openCreateForm}) => {
                 <Button onClick={openCreateForm} positive content='Create Activity'></Button>
             </Menu.Item>
             </Container>
-
       </Menu>
 
     )
