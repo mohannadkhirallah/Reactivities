@@ -39,6 +39,7 @@ namespace API
             services.AddControllers()
                         .AddFluentValidation(cfg=>{
                 cfg.RegisterValidatorsFromAssemblyContaining<Create>();
+                cfg.RegisterValidatorsFromAssemblyContaining<Edit>();
             });
             
             services.AddDbContext<DataContext>(opt=>

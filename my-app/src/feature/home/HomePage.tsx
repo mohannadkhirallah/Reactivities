@@ -16,4 +16,5 @@ export const HomePage = () => {
                </Container>
            </Segment>
     )
-}
+};
+export default HomePage;

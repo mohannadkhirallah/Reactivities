@@ -1,9 +1,31 @@
 import axios, { AxiosResponse } from 'axios';
-import { url } from 'inspector';
+import { toast } from 'react-toastify';
+import { history } from '../..';
 import {IActivity} from '../models/activity';
 
 //Setting base  URI
 axios.defaults.baseURL = 'http://localhost:5000/api';
+
+//handle error 
+axios.interceptors.response.use(undefined, (error)=>{
+
+    const {status,data,config} = error.response;
+    if(status === 404)
+    {
+        history.push('/notfound');
+    }
+    if(status === 400)
+    {
+        history.push('/notfound');
+    }
+    console.log(error.response);
+
+    if(status === 500)
+    {
+        toast.error('service error - check the terminal for more infor!');
+    }
+
+});
 
 const responseBody=(response: AxiosResponse) =>response.data;
 const sleep= (ms:number) =>(response:AxiosResponse) => new Promise<AxiosResponse>(resolve => setTimeout(() => resolve(response),ms));
