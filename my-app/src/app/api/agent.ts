@@ -8,6 +8,17 @@ axios.defaults.baseURL = 'http://localhost:5000/api';
 
 //handle error 
 axios.interceptors.response.use(undefined, (error)=>{
+    if(error.message ==='Network Error' && !error.response){
+        toast.error('Make sure the API is running', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            });
+    }
 
     const {status,data,config} = error.response;
     if(status === 404)
@@ -22,9 +33,16 @@ axios.interceptors.response.use(undefined, (error)=>{
 
     if(status === 500)
     {
-        toast.error('service error - check the terminal for more infor!');
+        toast.error('Server error- Check terminal', {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            });
     }
-
 });
 
 const responseBody=(response: AxiosResponse) =>response.data;

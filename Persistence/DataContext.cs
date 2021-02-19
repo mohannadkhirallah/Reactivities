@@ -2,10 +2,11 @@ using Domain;
 using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.EntityFrameworkCore.Sqlite;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Persistence
 {
-    public class DataContext:DbContext
+    public class DataContext:IdentityDbContext<AppUser>
     {
         public DataContext(DbContextOptions options):base(options)
         {
@@ -15,6 +16,8 @@ namespace Persistence
         public DbSet<Activity> Activities { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
+            
             builder.Entity<Value>()
             .HasData(
                 new Value{Id=1,Name="Moe1"},
