@@ -3,9 +3,12 @@ import { Item , Button, Label, Segment, Icon} from 'semantic-ui-react';
 import { IActivity } from '../../../app/models/activity';
 import ActivityStore from '../../../app/stores/activityStore';
 import { Link } from 'react-router-dom';
+import { RootStoreContext } from '../../../app/stores/rootStore';
 
 export const ActivityListItem:React.FC<{activity:IActivity}> = ({activity}) => {
-    const activityStore= useContext(ActivityStore);
+    const rootStore= useContext(RootStoreContext);
+    const activityStore = rootStore.activityStore;
+    // const activityStore= useContext(ActivityStore);
     const {deleteActivity,submitting,target} =activityStore;
     return (
         <Segment.Group>

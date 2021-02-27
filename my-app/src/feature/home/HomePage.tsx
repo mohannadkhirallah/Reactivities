@@ -1,7 +1,14 @@
-import React from 'react'
+import React, { Fragment, useContext } from 'react'
 import { Button, Container, Header, Segment,Image } from 'semantic-ui-react'
 import {Link} from 'react-router-dom'
+import { RootStoreContext } from '../../app/stores/rootStore';
+import LoginForm from '../user/LoginForm';
+import RegisterForm from '../user/RegisterForm';
 export const HomePage = () => {
+    const rootStore = useContext(RootStoreContext);
+    const {isLoggedIn,user} =rootStore.userStore;
+    const{opneModal} = rootStore.modalStore;
+
     return (
            <Segment inverted textAlign='center' vertical className='masthead' >
                <Container text>
@@ -9,10 +16,21 @@ export const HomePage = () => {
                        <Image size='massive' src='/assets/logo.png' alt='logo' style={{marginBottom: 12}}/>
                        Reactivities
                    </Header>
-                   <Header as='h2' inverted content='Welcome to Reactivities' />
-                   <Button as={Link} to='/activities' size='huge' inverted>
-                       Take me to the activities!
-                   </Button>
+                   {isLoggedIn && user ? ( 
+                    <Fragment>
+                        <Header as='h2' inverted content={`Welcome back ${user.displayName}`} />
+                        <Button as={Link} to='/activities' size='huge' inverted> Go to Activities !!! </Button>
+                    </Fragment>
+                   
+                   ):
+                   (
+                    
+                    <Fragment>
+                        <Header as='h2' inverted content='Welcome to Reactivities' />
+                        <Button onClick={()=>opneModal(<LoginForm/>)} size='huge' inverted> Login </Button>
+                        <Button onClick={()=>opneModal(<RegisterForm/>)} size='huge' inverted>  Register </Button>
+                    </Fragment>
+                   )}
                </Container>
            </Segment>
     )

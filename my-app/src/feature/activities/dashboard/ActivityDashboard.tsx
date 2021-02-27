@@ -4,9 +4,13 @@ import { Grid, GridColumn } from 'semantic-ui-react';
 import ActivityList from './ActivityList';
 import ActivityStore from '../../../app/stores/activityStore';
 import { LoadingCompnent } from '../../../app/layout/LoadingCompnent';
+import { RootStore, RootStoreContext } from '../../../app/stores/rootStore';
 
 export const ActivityDashboard :React.FC = () => {
-    const activityStore = useContext(ActivityStore);
+    // const activityStore = useContext(ActivityStore);
+    const rootStore= useContext(RootStoreContext);
+    const activityStore = rootStore.activityStore;
+
  
     useEffect(() => {
        activityStore.loadActivities();

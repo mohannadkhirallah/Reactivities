@@ -3,10 +3,19 @@ import { createContext, SyntheticEvent } from "react";
 import { toast } from "react-toastify";
 import agent from "../api/agent";
 import {IActivity} from '../models/activity'
+import { RootStore } from "./rootStore";
 
-configure({enforceActions:'always'});
 
-class ActivityStore{
+
+export default class ActivityStore{
+
+    rootStore: RootStore;
+
+    constructor(rootStore:RootStore)
+    {
+        this.rootStore=rootStore;
+        makeAutoObservable(this);
+    }
 
     activityRegistry = new Map();
     loadingInitial = false;
@@ -14,9 +23,9 @@ class ActivityStore{
     submitting =false;
     target='';
 
-    constructor() {
-        makeAutoObservable(this)
-    }
+    // constructor() {
+    //     makeAutoObservable(this)
+    // }
 
     @computed get activitiesByDate(){
         console.log(this.groupActivitiesByDate( Array.from( this.activityRegistry.values())));
@@ -159,4 +168,3 @@ class ActivityStore{
     };
 
 }
-export default createContext(new ActivityStore())

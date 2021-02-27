@@ -11,6 +11,7 @@ import TextAreaInput from '../../../app/common/form/TextAreaInput';
 import { SelectInput } from '../../../app/common/form/SelectInput';
 import { category } from '../../../app/common/form/categoryOptionsts';
 import {combineValidators, composeValidators, hasLengthBetween, hasLengthGreaterThan, isRequired} from 'revalidate';
+import { RootStoreContext } from '../../../app/stores/rootStore';
 
 
 const validate=combineValidators({
@@ -34,7 +35,9 @@ interface DetailsParams
 
 export const ActivityForm:React.FC<RouteComponentProps<DetailsParams>> = ({history,match}) => {
 
-    const activityStore= useContext(ActivityStore);
+    const rootStore= useContext(RootStoreContext);
+    const activityStore = rootStore.activityStore;
+    // const activityStore= useContext(ActivityStore);
     const {createActivity,editActivity,submitting,selectedActivity:initialFormState,LoadActivity,clearActivity}= activityStore;
 
     useEffect(()=>{

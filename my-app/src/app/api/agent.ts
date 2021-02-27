@@ -1,10 +1,22 @@
 import axios, { AxiosResponse } from 'axios';
+import { promises } from 'dns';
 import { toast } from 'react-toastify';
 import { history } from '../..';
 import {IActivity} from '../models/activity';
+import { IUser, IUserFormValues } from '../models/user';
 
 //Setting base  URI
 axios.defaults.baseURL = 'http://localhost:5000/api';
+
+axios.interceptors.request.use((config)=>{
+
+    const token = window.localStorage.getItem('jwt');
+    if(token)
+        config.headers.Authorization =`Bearer ${token}` 
+    return config;
+}, error=> {
+    return Promise.reject(error);
+})
 
 //handle error 
 axios.interceptors.response.use(undefined, (error)=>{
@@ -43,6 +55,7 @@ axios.interceptors.response.use(undefined, (error)=>{
             progress: undefined,
             });
     }
+    throw error.response;
 });
 
 const responseBody=(response: AxiosResponse) =>response.data;
@@ -67,6 +80,16 @@ const Activities ={
 
 }
 
+
+const User ={
+    current:():Promise<IUser>=> requests.get('/user'),
+    login:(user:IUserFormValues):Promise<IUser> =>requests.post('/user/login',user),
+    register:(user:IUserFormValues):Promise<IUser> =>requests.post('/user/register',user)
+}
+
+
+
 export default {
-    Activities
+    Activities,
+    User
 }
