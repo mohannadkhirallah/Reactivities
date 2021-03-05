@@ -1,3 +1,5 @@
+import { IAttendee } from "./attendee";
+
 export interface IActivity{
 
     id:string;
@@ -7,9 +9,12 @@ export interface IActivity{
     city:string;
     venue:string;
     category:string;
+    isGoing:boolean;
+    isHost:boolean;
+    attendees:IAttendee[]
 
 }
-export class ActivityFormValues implements IActivity
+export class ActivityFormValues implements Partial< IActivity>
 {
     id: string = '';
     title: string='';
@@ -18,7 +23,9 @@ export class ActivityFormValues implements IActivity
     city: string='';
     venue: string='';
     category: string='';
-
+    // attendees:IAttendee[]=[];
+    // isGoing:boolean=false;
+    // isHost:boolean=false;
 
     constructor(init?:IActivity){
         if(init)
@@ -26,4 +33,5 @@ export class ActivityFormValues implements IActivity
             Object.assign(this,init);
         }
     }
+  
 }

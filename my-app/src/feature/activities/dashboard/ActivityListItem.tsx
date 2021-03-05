@@ -4,8 +4,11 @@ import { IActivity } from '../../../app/models/activity';
 import ActivityStore from '../../../app/stores/activityStore';
 import { Link } from 'react-router-dom';
 import { RootStoreContext } from '../../../app/stores/rootStore';
+import { ActivityListItemAttendees } from './ActivityListItemAttendees';
 
 export const ActivityListItem:React.FC<{activity:IActivity}> = ({activity}) => {
+    const host = activity.attendees.filter( x=> x.isHost)[0];
+
     const rootStore= useContext(RootStoreContext);
     const activityStore = rootStore.activityStore;
     // const activityStore= useContext(ActivityStore);
@@ -15,10 +18,23 @@ export const ActivityListItem:React.FC<{activity:IActivity}> = ({activity}) => {
             <Segment>
                 <Item.Group>
                         <Item>
-                        <Item.Image size='tiny' circular src='/assets/user.png'/>
+                        <Item.Image size='tiny' circular src={'/assets/user.png' || host.image}/>
                         <Item.Content>
-                        <Item.Header as='a'>{activity.title}</Item.Header>
-                        <Item.Description> Hosted by Bob </Item.Description>
+                        <Item.Header as={Link} to={`/activities/${activity.id}`}>{activity.title}</Item.Header>
+                        <Item.Description> Hosted by {host.displayName} </Item.Description>
+                        {activity.isHost &&
+                        <Item.Description>
+                        <Label basic color='orange'
+                        content='You are hosting this activity' />
+                         </Item.Description>
+                        }
+
+                        {activity.isGoing && !activity.isHost &&
+                        <Item.Description>
+                        <Label basic color='green'
+                        content='You are going to this activity' />
+                         </Item.Description>
+                        }
                         </Item.Content>
                         </Item>
                 </Item.Group>
@@ -28,7 +44,7 @@ export const ActivityListItem:React.FC<{activity:IActivity}> = ({activity}) => {
                 <Icon name='marker'/>{activity.venue}, {activity.city}
             </Segment>
             <Segment secondary>
-                Attenddess will go here
+               <ActivityListItemAttendees attendees ={activity.attendees}/>
             </Segment>
             <Segment clearing>
                 <span>{activity.description}</span>

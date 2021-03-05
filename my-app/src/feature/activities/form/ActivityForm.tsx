@@ -58,7 +58,10 @@ export const ActivityForm:React.FC<RouteComponentProps<DetailsParams>> = ({histo
         date:'',
         city:'',
         venue:'',
-        description:'' 
+        description:'' ,
+        attendees:[],
+        isGoing:false,
+        isHost:false,
     });
 
     const handleInputChange=(event:FormEvent<HTMLInputElement|HTMLTextAreaElement>)=>{

@@ -12,6 +12,7 @@ export default class CommonStore {
         token=> {
             if(token)
             {
+
                 window.localStorage.setItem('jwt',token);
             }
             else{
@@ -25,6 +26,7 @@ export default class CommonStore {
 
     @action setToken=(token:string | null)=>{
         this.token=token;
+       
     }
     @action setAppLoaded = ()=> {
         this.appLoaded=true;

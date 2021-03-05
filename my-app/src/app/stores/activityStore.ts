@@ -1,8 +1,10 @@
+import { ca, tr } from "date-fns/locale";
 import { observable, action,makeAutoObservable,computed,configure,runInAction } from "mobx";
 import { createContext, SyntheticEvent } from "react";
 import { toast } from "react-toastify";
 import agent from "../api/agent";
 import {IActivity} from '../models/activity'
+import { IAttendee } from "../models/attendee";
 import { RootStore } from "./rootStore";
 
 
@@ -22,6 +24,7 @@ export default class ActivityStore{
     selectedActivity:IActivity |undefined;
     submitting =false;
     target='';
+    loading =false;
 
     // constructor() {
     //     makeAutoObservable(this)
@@ -45,12 +48,19 @@ export default class ActivityStore{
 
     @action loadActivities = async() => {
         this.loadingInitial=true;
+        const user = this.rootStore.userStore.user!;
         try
         {
             const activities= await agent.Activities.list();
             runInAction( ()=>{
                 activities.forEach(actvity=>{
                     actvity.date=actvity.date.split('.')[0];
+                    actvity.isGoing= actvity.attendees.some(
+                        a =>a.username === user.username
+                    )
+                    actvity.isHost = actvity.attendees.some(
+                        a =>a.username === user.username && a.isHost
+                    )
                     this.activityRegistry.set(actvity.id,actvity);
                   });
                   this.loadingInitial=false;
@@ -69,7 +79,8 @@ export default class ActivityStore{
     {
         // Getting atcivity from the activity list 
         // Or get activity from Data base that does does exist in the dashboard or refresh the page (no activity in the regirsty)
-        let activity= this.getActivity(id);
+        let activity= this.getActivity(id) as IActivity;
+        const user = this.rootStore.userStore.user!;
         if(activity) {
             this.selectedActivity=activity;
         }
@@ -78,8 +89,15 @@ export default class ActivityStore{
             this.loadingInitial=true;
             try
             {
-                activity = agent.Activities.details(id);
+                activity = await agent.Activities.details(id);
                 runInAction(()=>{
+                    
+                    activity.isGoing= activity.attendees.some(
+                        a => a.username === user.username
+                    )
+                    activity.isHost = activity.attendees.some(
+                        a => a.username === user.username && a.isHost
+                    )
                     this.selectedActivity=activity;
                     this.loadingInitial=false;
         
@@ -110,6 +128,16 @@ export default class ActivityStore{
         this.submitting=true;
         try {
             await agent.Activities.create(activity);
+            const user = this.rootStore.userStore.user!;
+            const attende:IAttendee ={
+            displayName:user.displayName,
+            isHost:true,
+            username :user.username, 
+            image : user.imgae!
+            };
+            let attendees=[];
+            attendees.push(attende);
+            activity.attendees=attendees;
             runInAction(()=>{
                 this.activityRegistry.set(activity.id,activity);
                 this.submitting=false;
@@ -166,5 +194,61 @@ export default class ActivityStore{
 
         }
     };
+
+    @action attendActivity = async () =>{
+        const user = this.rootStore.userStore.user!;
+        const attende:IAttendee ={
+            displayName:user.displayName,
+            isHost:false,
+            username :user.username, 
+            image : user.imgae!
+        };
+        this.loading=true;
+        try
+        {
+            await agent.Activities.attend(this.selectedActivity!.id);
+            runInAction(()=>{
+                if(this.selectedActivity)
+                {
+                    this.selectedActivity.attendees.push(attende);
+                    this.selectedActivity.isGoing=true;
+                    this.activityRegistry.set(this.selectedActivity.id,this.selectedActivity);
+                    this.loading=false;
+                }     
+            })
+        } 
+        catch(error)
+        {
+            runInAction(()=>{
+                this.loading=false;
+            })
+            toast.error('Problem singing up to activity');
+        } 
+       
+    }
+    @action cancelAttendance =async () =>
+    {
+        try
+        {
+            await agent.Activities.unattend(this.selectedActivity!.id);
+            runInAction(()=>{
+                
+         if(this.selectedActivity)
+                {
+                    this.selectedActivity.attendees = this.selectedActivity.attendees.filter (a=>a.username ! == this.rootStore.userStore.user!.username);
+                    this.selectedActivity.isGoing=false;
+                    this.activityRegistry.set(this.selectedActivity.id,this.selectedActivity);
+                }
+            })
+        }
+        catch(error)
+        {
+            runInAction(()=>{
+                this.loading=false;
+            })
+            toast.error('Problem singing up to activity');
+        }
+        
+    }
 
 }

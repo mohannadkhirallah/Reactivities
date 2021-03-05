@@ -1,4 +1,4 @@
-import { ca } from "date-fns/locale";
+
 import { action, computed, makeAutoObservable, observable, runInAction } from "mobx";
 import { history } from "../..";
 import agent from "../api/agent";
@@ -27,6 +27,7 @@ export default class UserStore {
                 this.user= user;
             })
             this.rootStore.commonStore.setToken(user.token);
+            window.localStorage.setItem('jwt',user.token);
             this.rootStore.modalStore.closeModal();
             history.push('/activities')
         }
