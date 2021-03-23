@@ -1,16 +1,20 @@
 import { HubConnection, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 import { ca, tr } from "date-fns/locale";
-import { observable, action,makeAutoObservable,computed,configure,runInAction } from "mobx";
+import { observable, action,makeAutoObservable,computed,configure,runInAction, reaction } from "mobx";
+import { cpuUsage } from "process";
 import { createContext, SyntheticEvent } from "react";
 import { toast } from "react-toastify";
+import { URLSearchParams } from "url";
 import agent from "../api/agent";
 import {IActivity} from '../models/activity'
 import { IAttendee } from "../models/attendee";
 import { RootStore } from "./rootStore";
 
+const Limit=2;
 
 
-export default class ActivityStore{
+
+export default class ActivityStore {
 
     rootStore: RootStore;
 
@@ -18,6 +22,13 @@ export default class ActivityStore{
     {
         this.rootStore=rootStore;
         makeAutoObservable(this);
+
+        reaction(
+            () => this.predicate.keys(),
+            () =>{ this.page =0;
+                   this.activityRegistry.clear();
+                   this.loadActivities(); 
+                })
     }
 
     activityRegistry = new Map();
@@ -27,10 +38,51 @@ export default class ActivityStore{
     target='';
     loading =false;
     @observable.ref hubConnection:HubConnection |null=null;
+    @observable activityCount =0;
+    @observable page =0;
+    @observable predicate = new Map();
 
     // constructor() {
     //     makeAutoObservable(this)
     // }
+
+    @action setPredicate =(predicate :string, value:string |Date) =>
+    {
+        this.predicate.clear();
+        if(predicate !== 'all')
+        {
+            this.predicate.set(predicate,value);
+        }
+
+    }
+
+    @computed get axiosParams()
+    {
+        const parmas = new URLSearchParams();
+        parmas.append('limit',String(Limit));
+        parmas.append('offset', `${this.page ? this.page * Limit:0}`);
+        this.predicate.forEach((value, key)=>{
+            if(key ==='startDate')
+            {
+                parmas.append(key,value.ToISOString());
+            }
+            else 
+            {
+                parmas.append(key,value);
+            }
+        })
+        return parmas;
+    }
+
+    @computed get totalPage(){
+       
+        return Math.ceil(this.activityCount / Limit);
+    }
+
+    @action setPage=(page:number)=>
+    {
+        this.page= page;
+    }
 
     @action createHubConnection = (activityId:string) =>{
         this.hubConnection =new HubConnectionBuilder()
@@ -100,7 +152,9 @@ export default class ActivityStore{
         const user = this.rootStore.userStore.user!;
         try
         {
-            const activities= await agent.Activities.list();
+            const activitiesEnvelope= await agent.Activities.list(this.axiosParams);
+            const {activities,activityCount} = activitiesEnvelope;
+
             runInAction( ()=>{
                 activities.forEach(actvity=>{
                     actvity.date=actvity.date.split('.')[0];
@@ -112,6 +166,7 @@ export default class ActivityStore{
                     )
                     this.activityRegistry.set(actvity.id,actvity);
                   });
+                  this.activityCount = activityCount;
                   this.loadingInitial=false;
             });
         }

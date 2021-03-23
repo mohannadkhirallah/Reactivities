@@ -2,8 +2,9 @@ import axios, { AxiosResponse } from 'axios';
 import { fil } from 'date-fns/locale';
 import { promises } from 'dns';
 import { toast } from 'react-toastify';
+import { URLSearchParams } from 'url';
 import { history } from '../..';
-import {IActivity} from '../models/activity';
+import {IActivitiesEnvelope, IActivity} from '../models/activity';
 import { IPhoto, IProfile } from '../models/Profile';
 import { IUser, IUserFormValues } from '../models/user';
 
@@ -81,7 +82,7 @@ const requests = {
 
 const Activities ={
 
-    list:():Promise<IActivity[]> => requests.get('/activities'),
+    list:(params:URLSearchParams):Promise<IActivitiesEnvelope> => axios.get('/activities',{params:params}).then(sleep(1000)).then(responseBody),
     details: (id:string) => requests.get(`/activities/${id}`),
     create: (activity:IActivity) => requests.post('/activities',activity),
     update: (activit:IActivity)  => requests.put(`/activities/${activit.id}`,activit),
