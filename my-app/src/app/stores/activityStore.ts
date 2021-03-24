@@ -152,7 +152,7 @@ export default class ActivityStore {
         const user = this.rootStore.userStore.user!;
         try
         {
-            const activitiesEnvelope= await agent.Activities.list(this.axiosParams);
+            const activitiesEnvelope= await agent.Activities.list(Limit,this.page);
             const {activities,activityCount} = activitiesEnvelope;
 
             runInAction( ()=>{

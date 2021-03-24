@@ -7,6 +7,7 @@ import { LoadingCompnent } from '../../../app/layout/LoadingCompnent';
 import { RootStore, RootStoreContext } from '../../../app/stores/rootStore';
 import InfiniteScroll from 'react-infinite-scroller';
 import ActivityFilters from './ActivityFilters';
+import ActivityListItemPlaceholder from './ActivityListItemPlaceHolder';
 
 export const ActivityDashboard :React.FC = () => {
     // const activityStore = useContext(ActivityStore);
@@ -21,8 +22,6 @@ export const ActivityDashboard :React.FC = () => {
         loadActivities().then(() => setLoadingNext(false));
 
     }
-
- 
     useEffect(() => {
        loadActivities();
        },[loadActivities]);
@@ -32,13 +31,17 @@ export const ActivityDashboard :React.FC = () => {
     return (
         <Grid>
             <Grid.Column width={10} >
-                <InfiniteScroll
-                pageStart={0}
-                loadMore={handleGetNext}
-                hasMore ={!loadingNext && page +1 < totalPage}>
-                <ActivityList />
-                </InfiniteScroll>
-                
+                {loadingInitial && page === 0 ?(
+                    <ActivityListItemPlaceholder/>
+                ):(
+
+                    <InfiniteScroll
+                    pageStart={0}
+                    loadMore={handleGetNext}
+                    hasMore ={!loadingNext && page +1 < totalPage}>
+                    <ActivityList />
+                    </InfiniteScroll>
+                )}
                 <Button
                 floated='right'
                 content='more...'

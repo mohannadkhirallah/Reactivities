@@ -44,7 +44,14 @@ axios.interceptors.response.use(undefined, (error)=>{
     {
         history.push('/notfound');
     }
-    console.log(error.response);
+    if(status === 401)
+    {
+        console.error(Response);
+        toast.info('Your token has expried, please login again...');
+        window.localStorage.removeItem('jwt');
+        history.push('/'); 
+    }
+    // console.log(error.response);
 
     if(status === 500)
     {
@@ -82,7 +89,8 @@ const requests = {
 
 const Activities ={
 
-    list:(params:URLSearchParams):Promise<IActivitiesEnvelope> => axios.get('/activities',{params:params}).then(sleep(1000)).then(responseBody),
+    // list:(params:URLSearchParams):Promise<IActivitiesEnvelope> => axios.get('/activities',{params:params}).then(sleep(1000)).then(responseBody),
+    list:(limit?:number, page?:number):Promise<IActivitiesEnvelope> =>requests.get(`/activities?limit=${limit}&offset=${page?page * limit!:0}`) ,
     details: (id:string) => requests.get(`/activities/${id}`),
     create: (activity:IActivity) => requests.post('/activities',activity),
     update: (activit:IActivity)  => requests.put(`/activities/${activit.id}`,activit),

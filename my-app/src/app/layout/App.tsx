@@ -15,6 +15,7 @@ import { getuid } from 'process';
 import { LoadingCompnent } from './LoadingCompnent';
 import ModalContainer from '../common/modals/ModalContainer';
 import {ProfilePage} from '../../feature/profiles/ProfilePage'
+import { PrivateRoutes } from './PrivateRoutes';
 
 const App:React.FC<RouteComponentProps> = ({location}) => {
 
@@ -45,11 +46,11 @@ const App:React.FC<RouteComponentProps> = ({location}) => {
                  <NavBar />
                  <Container style={{marginTop:'7em'}}>
                    <Switch>
-                    <Route exact path='/activities' component={ActivityDashboard}/>
-                    <Route  path='/activities/:id' component={ActivityDetails}/>
-                    <Route key={location.key} path= {['/createActivity','/manage/:id']} component={ActivityForm}/>
-                    <Route path='/profile/:username' component={ProfilePage}/>
-                    <Route path='/login' component={LoginForm}/>
+                    <PrivateRoutes exact path='/activities' component={ActivityDashboard}/>
+                    <PrivateRoutes  path='/activities/:id' component={ActivityDetails}/>
+                    <PrivateRoutes key={location.key} path= {['/createActivity','/manage/:id']} component={ActivityForm}/>
+                    <PrivateRoutes path='/profile/:username' component={ProfilePage}/>
+                    <PrivateRoutes path='/login' component={LoginForm}/>
                     <Route component={NotFound}/>
                    </Switch>
                  </Container>
